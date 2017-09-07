@@ -1,0 +1,77 @@
+#1. Find all user who are belong to bangalore
+    SELECT user.name
+    FROM user, address
+    WHERE user.id = address.id AND city = 'bangalore' ;
+    
+#2. Find all user who are belong to bangalore and count of their orders
+    SELECT u.name ,count(o.id) 
+    FROM user u ,address a , orders o 
+    WHERE u.id = a.user_id AND u.id = o.id AND a.city = 'bangalore' 
+    GROUP BY u.name ;
+    
+#3. Find the average price of all products
+    SELECT AVG(price)'AveragePrice'
+    FROM product ;
+    
+   
+#4. search all products which looks like having word phone in its name.
+    SELECT * FROM product
+    WHERE product.name LIKE  '%phone%' ;
+
+#5. Find sum of all products between price 1000 to 2000
+    SELECT SUM(price) FROM product
+    WHERE price BETWEEN '0' AND'1000' ;
+
+#6. Find all products shipped between feb to till date with it's count
+    SELECT  COUNT(*)'NumberOfOrders',p.name
+    FROM product p , orders o 
+    WHERE p.id = o.product_id AND o.order_date > '2017-01-31 00:00:00'
+    GROUP BY  p.name ;
+
+#7. Find all the orders and their shipment status
+    SELECT orders.id'orderID' , shipment.status 
+    FROM orders , shipment
+    WHERE orders.id = shipment.order_id
+    ORDER BY  orders.id  ;
+
+#8. Count all the products of each Category
+    SELECT product.name'ProductName' , category.name'CategoryName' 
+    FROM product , category 
+    WHERE category.id = product.category_id 
+    ORDER BY  category.name ;
+
+
+#9. List all Brands and its category with product count
+    #eg..reliance-electronics-10
+    #    reliance-clothing-20
+    #    addidas-clothing-2
+    SELECT  *,COUNT(prod_name) count FROM 
+    (SELECT b.name brand_name,c.name cat_name,p.name prod_name
+     FROM product p,category c,brand b 
+    WHERE p.brand_id=b.id and p.category_id=c.id) 
+    pcb GROUP BY brand_name,cat_name;
+
+
+#10.Find details of a product if it is shipped for a user 
+#    e.g. If product X is shipped through a courier then It must have a order Id.
+#        So I want product-->orderId-->shipmentId-->courierId
+    
+    SELECT  s.id'shipmentID' , o.id'orderID' , p.id'productID'  ,c.id'courierID',p.name'productName'
+    FROM  product p , orders o , shipment s ,courier c
+    WHERE s.status = 'delivered'
+     AND s.order_id = o.id
+    AND o.product_id = p.id
+     and s.courier_id = c.id ;
+
+#11.Calculate count of products ordered in month wise. eg.g jan-2,feb-3
+    SELECT monthname(o.order_date)'month',COUNT(p.id)'numberOfProducts'
+    FROM product p 
+    INNER JOIN orders o on p.id = o.product_id AND order_date 
+    GROUP BY MONTH(o.order_date) ;
+
+#12.Calculate count of products ordered from bangalore and chennai in month wise.
+	SELECT monthname(o.order_date),count(o.id)
+	FROM user u,(select distinct user_id,city from address) a,orders o,product p 
+	WHERE u.id=a.user_id AND u.id=o.user_id 
+	AND p.id=o.product_id AND a.city IN('bangalore','chennai')
+	GROUP BY a.city,MONTH(o.order_date);
